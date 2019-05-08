@@ -2,16 +2,22 @@ package org.zyl910.javademo.xml.charinvalidxerces;
 
 import org.apache.axis.encoding.DeserializationContext;
 import org.apache.axis.utils.XMLUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.StringReader;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
 
 public class Main extends DefaultHandler implements LexicalHandler {
     private PrintStream outs;
@@ -45,7 +51,7 @@ public class Main extends DefaultHandler implements LexicalHandler {
             //characters: #16
             //characters: ;
             //org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 71; Character reference "&#16" is an invalid XML character.
-        //String strxml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><root>  <str><![CDATA[汉字ABC&amp;#16;&#16;.]]></str></root>"; // 不会解转义. 会被提取为“C&amp;#16;&#16;”.
+        //String strxml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><root>  <str><![CDATA[汉字ABC&amp;#16;&#16;.]]></str></root>"; // 不会解转义. 会被提取为“C&amp;#16;&#16;”, 即不对`&#`转义进行解析..
             //startElement: str
             //startCDATA
             //characters: 汉字AB
@@ -56,14 +62,80 @@ public class Main extends DefaultHandler implements LexicalHandler {
             //characters: A
             //characters:  
             //characters: B
-        String strxml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><root>  <str>A&#31;B</str></root>";  // 异常. 虽然xml支持转义字符, 但若该字符属于xml非法字符范围内, 则会报异常.
+        //String strxml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><root>  <str>A&#31;B</str></root>";  // 异常. 虽然xml支持转义字符, 但若该字符属于xml非法字符范围内, 则会报异常.
             //startElement: str
             //characters: A
             //org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 58; Character reference "&#31" is an invalid XML character.
         InputSource is;
-        is = new InputSource(new StringReader(strxml));
+        //is = new InputSource(new StringReader(strxml));
+        is = loadInputSource();
         //testAxis(is);
         testJaxp(is);
+    }
+
+    /** 加载 InputSource.
+     *
+     * @return InputSource.
+     */
+    private InputSource loadInputSource() throws UnsupportedEncodingException, TransformerException, ParserConfigurationException {
+        String strxml = getXmlByDom();
+        InputSource is;
+        is = new InputSource(new StringReader(strxml));
+        return is;
+    }
+
+    /** 根据dom构造xml.
+     *
+     * @return xml字符串.
+     */
+    public String getXmlByDom() throws ParserConfigurationException, TransformerException, UnsupportedEncodingException {
+        final String charsetName = "utf8";
+        String rt;
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.newDocument();
+        document.setXmlStandalone(true);
+
+        Element itemInfo = document.createElement("ItemInfo");
+        document.appendChild(itemInfo);
+
+        Element itemStatistics = document.createElement("ItemStatistics");
+        itemStatistics.setTextContent("商品统计");
+        itemInfo.appendChild(itemStatistics);
+
+        Element items = document.createElement("Items");
+        itemInfo.appendChild(items);
+        // 此处可以循环添加
+        Element item = document.createElement("Item");
+        items.appendChild(item);
+
+        Element itemName = document.createElement("ItemName");
+        itemName.setTextContent("iPhone");
+        item.appendChild(itemName);
+
+        Element itemNum = document.createElement("ItemNum");
+        itemNum.setTextContent("3");
+        item.appendChild(itemNum);
+
+        Element itemValue = document.createElement("ItemValue");
+        itemValue.setTextContent("1000000");
+        item.appendChild(itemValue);
+
+        Element remark = document.createElement("Remark");
+        remark.setTextContent("配送");
+        itemInfo.appendChild(remark);
+
+        TransformerFactory transFactory = TransformerFactory.newInstance();
+        Transformer transformer = transFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        DOMSource domSource = new DOMSource(document);
+
+        // xml transform String
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        transformer.transform(domSource, new StreamResult(bos));
+        rt = bos.toString(charsetName);
+        return rt;
     }
 
     /** 测试axis解析回应xml数据.
