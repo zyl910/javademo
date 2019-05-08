@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <str>汉字ABC&#16;</str>
+  <str>汉字ABC&amp;#16;</str>
 </root>
