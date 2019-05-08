@@ -79,6 +79,7 @@ public class Main extends DefaultHandler implements LexicalHandler {
      */
     private InputSource loadInputSource() throws UnsupportedEncodingException, TransformerException, ParserConfigurationException {
         String strxml = getXmlByDom();
+        outs.println(strxml);
         InputSource is;
         is = new InputSource(new StringReader(strxml));
         return is;
@@ -92,45 +93,25 @@ public class Main extends DefaultHandler implements LexicalHandler {
         final String charsetName = "utf8";
         String rt;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.newDocument();
         document.setXmlStandalone(true);
 
-        Element itemInfo = document.createElement("ItemInfo");
-        document.appendChild(itemInfo);
+        Element rootElement = document.createElement("root");
+        document.appendChild(rootElement);
 
-        Element itemStatistics = document.createElement("ItemStatistics");
-        itemStatistics.setTextContent("商品统计");
-        itemInfo.appendChild(itemStatistics);
-
-        Element items = document.createElement("Items");
-        itemInfo.appendChild(items);
-        // 此处可以循环添加
-        Element item = document.createElement("Item");
-        items.appendChild(item);
-
-        Element itemName = document.createElement("ItemName");
-        itemName.setTextContent("iPhone");
-        item.appendChild(itemName);
-
-        Element itemNum = document.createElement("ItemNum");
-        itemNum.setTextContent("3");
-        item.appendChild(itemNum);
-
-        Element itemValue = document.createElement("ItemValue");
-        itemValue.setTextContent("1000000");
-        item.appendChild(itemValue);
-
-        Element remark = document.createElement("Remark");
-        remark.setTextContent("配送");
-        itemInfo.appendChild(remark);
+        Element strElement = document.createElement("str");
+        //String content = "汉字ABC&#16;"; // <?xml version="1.0" encoding="UTF-8"?><root><str>汉字ABC&amp;#16;</str></root>
+        //String content = "汉字ABC&#16;\u00A0"; // 能生成, 不用转义, 且能解析.<?xml version="1.0" encoding="UTF-8"?><root><str>汉字ABC&amp;#16; </str></root>
+        String content = "汉字ABC&#16;\u0010"; // 能生成, 转义, 但解析异常.<?xml version="1.0" encoding="UTF-8"?><root><str>汉字ABC&amp;#16;&#16;</str></root>
+            // org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 69; Character reference "&#16" is an invalid XML character.
+        strElement.setTextContent(content);
+        rootElement.appendChild(strElement);
 
         TransformerFactory transFactory = TransformerFactory.newInstance();
         Transformer transformer = transFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        //transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         DOMSource domSource = new DOMSource(document);
-
         // xml transform String
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         transformer.transform(domSource, new StreamResult(bos));
@@ -218,7 +199,7 @@ public class Main extends DefaultHandler implements LexicalHandler {
     }
 
     public static void main(String[] args) {
-        System.out.println("Char invalid xerces");
+        System.out.println("charinvalidxerces v1.0");
         try {
             Main p = new Main();
             p.setOuts(System.out);
