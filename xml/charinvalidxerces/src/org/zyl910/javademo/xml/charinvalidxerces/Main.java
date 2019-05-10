@@ -79,11 +79,14 @@ public class Main extends DefaultHandler implements LexicalHandler {
      * @return InputSource.
      */
     private InputSource loadInputSource() throws IOException, TransformerException, ParserConfigurationException, SAXException {
-        //String strxml = makeXmlByDom();
-        String strxml = makeXmlBySax();
-        outs.println(strxml);
         InputSource is;
-        is = new InputSource(new StringReader(strxml));
+        ////String strxml = makeXmlByDom();
+        //String strxml = makeXmlBySax();
+        //outs.println(strxml);
+        //is = new InputSource(new StringReader(strxml));
+        String f = "wsdemo.xml";
+        FileInputStream in = new FileInputStream(f);
+        is = new InputSource(in);
         return is;
     }
 
