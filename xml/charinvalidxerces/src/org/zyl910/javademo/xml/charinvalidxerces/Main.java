@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
@@ -195,6 +196,11 @@ public class Main extends DefaultHandler implements LexicalHandler {
     private void testJaxp(InputSource is) throws SAXException, IOException {
         SAXParser parser = XMLUtils.getSAXParser();
         parser.setProperty("http://xml.org/sax/properties/lexical-handler", this);
+        if (true) {
+            // http://xerces.apache.org/xerces2-j/features.html
+            XMLReader reader = parser.getXMLReader();
+            reader.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false);
+        }
         parser.parse(is, this);
         outs.println(parser);
     }
