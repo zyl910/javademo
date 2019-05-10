@@ -70,8 +70,8 @@ public class Main extends DefaultHandler implements LexicalHandler {
         InputSource is;
         //is = new InputSource(new StringReader(strxml));
         is = loadInputSource();
-        //testAxis(is);
-        testJaxp(is);
+        testAxis(is);
+        //testJaxp(is);
     }
 
     /** 加载 InputSource.

@@ -1,22 +1,5 @@
 <?xml version="1.0"?>
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://appleworld.com/api/schema">
-    <SOAP-ENV:Body>
-        <ns1:getHotelDetailsRS>
-            <ns1:header version="2.1" echoToken="1444372751" result="SUCCESS" count="1" />
-            <ns1:request hotel="06122046" langMode="D" customerLang="zh" />
-            <ns1:response>
-                <ns1:hotel id="06122046" name="AGRABAD HOTEL">
-                    <ns1:location city="CHGG" cityName="CHITTAGONG" district="" state="" stateName="" country="BD" countryName="BANGLADESH" area="1" areaName="ASIA" />
-                    <ns1:contact phone="+880 31713311" fax="+880 31710572" address="Agrabad Commercial Area, Gpo Box 147, Chittagong, 4000, Bangladesh" zip="4000" url="http://www.agrabadhotel.com/" email="" />
-                    <ns1:stars>4</ns1:stars>
-                    <ns1:old_name></ns1:old_name>
-                    <ns1:description></ns1:description>
-                    <ns1:images />
-                    <ns1:latitude></ns1:latitude>
-                    <ns1:longitude></ns1:longitude>
-                    <ns1:facilityInfo />
-                </ns1:hotel>
-            </ns1:response>
-        </ns1:getHotelDetailsRS>
+    <SOAP-ENV:Body>汉字ABC
     </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>
