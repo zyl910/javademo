@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://appleworld.com/api/schema">
-    <SOAP-ENV:Body>汉字ABC
+    <SOAP-ENV:Body>汉字ABC&#16;
     </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

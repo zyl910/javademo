@@ -48,7 +48,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
-
+import org.xml.sax.SAXParseException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.SAXParser;
 import javax.xml.rpc.JAXRPCException;
@@ -222,8 +222,8 @@ public class DeserializationContext extends DefaultHandler
     {
         if (inputSource != null) {
             SAXParser parser = XMLUtils.getSAXParser();
-            try {
-                parser.setProperty("http://xml.org/sax/properties/lexical-handler", this);
+            try { // [zhouyuelin] 用于忽略无效字符异常. 为了不影响行号变化, 将新增代码写到同一行中.
+                parser.setProperty("http://xml.org/sax/properties/lexical-handler", this); parser.getXMLReader().setFeature("http://apache.org/xml/features/continue-after-fatal-error", true);
                 parser.parse(inputSource, this);
 
                 try {
@@ -1231,6 +1231,13 @@ public class DeserializationContext extends DefaultHandler
         public void startCDATA() throws SAXException {}
         public void endCDATA() throws SAXException {}
         public void comment(char[] arg0, int arg1, int arg2) throws SAXException {}
+    }
+
+    @Override
+    public void fatalError(SAXParseException e) throws SAXException {
+        // [zhouyuelin] 用于忽略无效字符异常.
+        log.debug("fatalError: " + e.toString(), e);
+        //super.fatalError(e);
     }
 }
 
