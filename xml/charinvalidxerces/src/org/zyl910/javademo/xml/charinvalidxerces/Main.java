@@ -188,7 +188,7 @@ public class Main extends DefaultHandler implements LexicalHandler {
         outs.println(dser);
     }
 
-    /** 测试jxap解析回应xml数据.
+    /** 测试jaxp解析回应xml数据.
      *
      * @param is xml输入流.
      * @throws SAXException SAX异常.
