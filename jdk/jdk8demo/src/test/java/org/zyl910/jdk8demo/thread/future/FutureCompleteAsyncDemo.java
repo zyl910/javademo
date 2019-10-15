@@ -1,15 +1,25 @@
 package org.zyl910.jdk8demo.thread.future;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /** Java8新特性8--使用CompletableFuture构建异步应用. https://www.jianshu.com/p/4897ccdcb278
  *
  */
 public class FutureCompleteAsyncDemo {
+    private String name;
     private Random random = new Random();
+
+    public FutureCompleteAsyncDemo() {
+        this(null);
+    }
+
+    public FutureCompleteAsyncDemo(String name) {
+        this.name = name;
+    }
 
     public static Integer cale(Integer para) {
         try {
@@ -57,6 +67,14 @@ public class FutureCompleteAsyncDemo {
             futurePrice.complete(price);
         }).start();
         return futurePrice;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
@@ -112,7 +130,7 @@ public class FutureCompleteAsyncDemo {
         // 实现异步API.
         if (true) {
             // 使用异步API 模拟客户端.
-            FutureCompleteAsyncDemo shop = new FutureCompleteAsyncDemo(); //new Shop("BestShop");
+            FutureCompleteAsyncDemo shop = new FutureCompleteAsyncDemo("BestShop");
             long start = System.nanoTime();
             Future<Double> futurePrice = shop.getPriceAsync("my favorite product");
             long incocationTime = (System.nanoTime() - start) / 1_000_000;
@@ -126,5 +144,86 @@ public class FutureCompleteAsyncDemo {
             long retrievalTime = (System.nanoTime() - start) / 1_000_000;
             System.out.println("retrievalTime:" + retrievalTime + " msecs");
         }
+        // 案例:最佳价格查询器.
+        if (true) {
+            findpricesTest();
+        }
     }
+
+    /** 案例:最佳价格查询器.
+     *
+     */
+    private static void findpricesTest() {
+        // 验证findprices的正确性和执行性能.
+        if (true) {
+            long start = System.nanoTime();
+            System.out.println(findprices("myPhones27s"));
+            long duration = (System.nanoTime() - start) / 1_000_000;
+            System.out.println("Done in " + duration+" msecs");
+        }
+        // 使用平行流对请求进行并行操作.
+        if (true) {
+            long start = System.nanoTime();
+            System.out.println(parallelFindprices("myPhones27s"));
+            long duration = (System.nanoTime() - start) / 1_000_000;
+            System.out.println("Done in " + duration+" msecs");
+        }
+        // 寻找更好的方案.
+        if (true) {
+            long start = System.nanoTime();
+            System.out.println(asyncFindpricesThread("myPhones27s"));
+            long duration = (System.nanoTime() - start) / 1_000_000;
+            System.out.println("Done in " + duration+" msecs");
+        }
+    }
+
+    private static List<FutureCompleteAsyncDemo> shops = Arrays.asList(new FutureCompleteAsyncDemo("BestPrice"),
+            new FutureCompleteAsyncDemo(":LetsSaveBig"),
+            new FutureCompleteAsyncDemo("MyFavoriteShop"),
+            new FutureCompleteAsyncDemo("BuyItAll"));
+
+    /**
+     * 最佳价格查询器
+     *
+     * @param product 商品
+     * @return
+     */
+    public static List<String> findprices(String product) {
+        return shops
+                .stream()
+                .map(shop -> String.format("%s price is %.2f", shop.getName(), shop.getPrice(product)))
+                .collect(Collectors.toList());
+    }
+    /**
+     * 最佳价格查询器(并行流)
+     *
+     * @param product 商品
+     * @return
+     */
+    public static List<String> parallelFindprices(String product) {
+        return shops
+                .parallelStream()
+                .map(shop -> String.format("%s price is %.2f", shop.getName(), shop.getPrice(product)))
+                .collect(Collectors.toList());
+    }
+
+    private static final Executor executor = Executors.newFixedThreadPool(Math.min(shops.size(), 100));
+    /**
+     * 最佳价格查询器(异步调用实现,自定义执行器)
+     *
+     * @param product 商品
+     * @return
+     */
+    public static List<String> asyncFindpricesThread(String product) {
+        List<CompletableFuture<String>> priceFuture = shops
+                .stream()
+                .map(shop -> CompletableFuture.supplyAsync(
+                        () -> shop.getName() + " price is " + shop.getPrice(product), executor))
+                .collect(Collectors.toList());
+        return priceFuture
+                .stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+    }
+
 }
