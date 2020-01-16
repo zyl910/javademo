@@ -9,7 +9,6 @@ public class TestCPrintf {
 
     // This is the standard, stable way of mapping, which supports extensive
     // customization and mapping of Java to native types.
-
     public interface CLibrary extends Library {
         // 它们是C语言函数库中的函数，其定义格式如下:
         // int toupper(int ch)
