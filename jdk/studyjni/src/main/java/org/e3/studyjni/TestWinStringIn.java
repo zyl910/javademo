@@ -49,10 +49,11 @@ public class TestWinStringIn {
         System.out.println(String.format("MessageBoxW: %d\n", n));
         // narrow string by Memory.
         byte[] textABytes = textA.getBytes();   // 按操作系统的文本编码转为字节数组.
-        Memory memory = new Memory(textABytes.length+1);    // +1是为了留出最后的 `\0` 结束符.
-        memory.write(0L, textABytes, 0, textABytes.length);
-        memory.setByte((long)textABytes.length, (byte)0);   // `\0` 结束符.
-        n = lib.MessageBoxA(hWnd, memory, caption, uType);
+        try(CloseableMemory memory = new CloseableMemory(textABytes.length+1)) {    // +1是为了留出最后的 `\0` 结束符.
+            memory.write(0L, textABytes, 0, textABytes.length);
+            memory.setByte((long) textABytes.length, (byte) 0);   // `\0` 结束符.
+            n = lib.MessageBoxA(hWnd, memory, caption, uType);
+        }
         System.out.println(String.format("MessageBoxA by Memory: %d\n", n));
         // System.getProperties
         System.out.println("Charset.defaultCharset:\t " + Charset.defaultCharset().name());
