@@ -13,22 +13,15 @@ import java.nio.charset.Charset;
  *     <br/><c>int MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType);</c>
  *     </li>
  * </ul>
- *
- * <p>Kernel32.dll:</p>
- * <ul>
- *     <li>GetComputerNameA function: https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/nf-winbase-getcomputernamea
- *     <br/><c>BOOL GetComputerNameA(LPSTR lpBuffer, LPDWORD nSize);</c>
- *     </li>
- * </ul>
  */
 public class TestWinStringIn {
     /** Windows library - User32.dll
      */
     public interface User32Library extends StdCallLibrary
     {
-        int MessageBoxA(NativeLong hWnd, Pointer lpText, String lpCaption, int uType);  // Point.
-        int MessageBoxA(NativeLong hWnd, String lpText, String lpCaption, int uType);  // String (narrow string).
-        int MessageBoxW(NativeLong hWnd, WString lpText, WString lpCaption, int uType);
+        int MessageBoxA(NativeLong hWnd, Pointer lpText, String lpCaption, int uType);  // Pointer.
+        int MessageBoxA(NativeLong hWnd, String lpText, String lpCaption, int uType);  // Narrow String.
+        int MessageBoxW(NativeLong hWnd, WString lpText, WString lpCaption, int uType);  // Wide String.
     }
 
     public static void main(String[] args) {
